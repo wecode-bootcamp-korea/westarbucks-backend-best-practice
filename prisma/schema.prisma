@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  username      String?
+  address       String?
+  phone_number  String?
+  policy_agreed Boolean   @default(true)
+  created_at    DateTime? @default(now())
+  updated_at    DateTime?
+
+  @@map("users")
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+
+  Product Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  korean_name  String   @unique
+  english_name String
+  category_id  Int
+  created_at   DateTime @default(now())
+
+  category       Category         @relation(fields: [category_id], references: [id])
+  ProductImage   ProductImage[]
+  ProductAllergy ProductAllergy[]
+  Nutrition      Nutrition?
+
+  @@map("products")
+}
+
+model ProductImage {
+  id         Int      @id @default(autoincrement())
+  image_url  String
+  product_id Int
+  created_at DateTime @default(now())
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("product_images")
+}
+
+model Allergy {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+
+  ProductAllergy ProductAllergy[]
+
+  @@map("allergies")
+}
+
+model ProductAllergy {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  allergy_id Int
+  created_at DateTime @default(now())
+
+  product Product @relation(fields: [product_id], references: [id])
+  allergy Allergy @relation(fields: [allergy_id], references: [id])
+
+  @@map("product_allergies")
+}
+
+model Nutrition {
+  id         Int      @id @default(autoincrement())
+  product_id Int      @unique
+  caffein    Float?
+  fat        Float?
+  sugar      Float?
+  sodium     Float?
+  created_at DateTime @default(now())
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("nutritions")
+}
