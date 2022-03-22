@@ -1,64 +1,38 @@
 const http = require('http')
 const express = require('express')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 const { PrismaClient } = require('@prisma/client')
+const routes = require('./routes')
 
 const prisma = new PrismaClient()
 
-const { sendCategories } = require('./sendCategories')
-const { sendProductList } = require('./sendProductList')
-const { sendProductDetail } = require('./sendProductDetail')
-
 const app = express()
+
 app.use(express.json())
+app.use(routes) // Route 에 의존성을 가집니다.
 
 app.get('/', (req, res) => {
   res.json({ message: '/ endpoint' })
 })
 
-app.get('/categories', sendCategories)
-app.get('/products', sendProductList)
-app.get('/product/2', sendProductDetail)
 
-app.post('/user/signup', async (req, res) => {
-  try {
-    const { email, password } = req.body
 
-		if (!email || !password) {
-			const error = new Error('KEY_ERROR')
-			error.statusCode = 400
-			throw error
-  
-		}
 
-		if (password.length < 8) {
-			const error = new Error('PASSWORD_TOO_SHORT')
-			error.statusCode = 400
-			throw error
-		}
 
-		const user = await prisma.$queryRaw`
-		  SELECT id FROM users WHERE email = ${email}
-    `
 
-		if (user.length !== 0) {
-			const error = new Error('EXISTING_USER')
-			error.statusCode = 409
-			throw error
-		}
 
-    const encryptedPW = bcrypt.hashSync(password, bcrypt.genSaltSync())
 
-    await prisma.$queryRaw`
-      INSERT INTO users(email, password) VALUES (${email}, ${encryptedPW});
-    `
-    return res.status(201).json({ message: "SIGNUP_SUCCESS" })
-  } catch (err) {
-    console.log(err)
-    return res.status(err.statusCode || 500).json({ message: err.message })
-  }
-})
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.post('/user/remove', async(req, res) => {
   try {
