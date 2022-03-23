@@ -10,8 +10,9 @@ const signUp = async (email, password) => {
 		throw error
 	}
 
+	console.log(4)
 	const user = await userDao.getUserByEmail(email)
-
+	console.log(5)
 
 	if (user.length !== 0) {
 		const error = new Error('EXISTING_USER')
@@ -26,4 +27,24 @@ const signUp = async (email, password) => {
 	return newUser
 }
 
-module.exports = { signUp }
+const signIn = async(email, password) => {
+
+	const user = await userDao.getUserByEmail(email)
+
+	if (user.length === 0) {
+		const error = new Error('INVALID_USER')
+		error.statusCode = 400
+		throw error
+	}
+
+	const isCorrect = bcrypt.compareSync(password, user[0].password)
+
+	if (!isCorrect) {
+		const error = new Error('INVALID_USER')
+		error.statusCode = 400
+		throw error
+	}
+
+	return jwt.sign({ userId: user[0].id }, process.env.SECRET_KEY)
+}
+module.exports = { signUp, signIn }
