@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 
-const userController = require('../controllers/userController') 
+const userController = require('../controllers/userController')
 // Route 는 오직 Controller 에만 의존 합니다.
 
+router.use(userController.validateForm)
 router.post('/signup', userController.signUp)
 router.post('/login', userController.signIn)
 
